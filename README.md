@@ -56,3 +56,13 @@ This will guide you in creating a basic configuration file (`pyproject.toml`) fo
 - [Python Documentation](https://docs.python.org/3/)
 - [Poetry Documentation](https://python-poetry.org/docs/)
 ```
+
+
+STEPS of execution:
+1. write all connectors
+2. models for request and responses  -- use pydantic models
+3. common model for data storage
+4. fetcher service
+5. arbitage manager  -- core logic          manager will only call service layer
+
+main -->  manager --> service --> connector

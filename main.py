@@ -9,10 +9,10 @@ if __name__ == '__main__':
     # ~ / PycharmProjects / ABOT
     # git: [main]
     # ├── README.md
-    # ├── connectors
-    # │   ├── binance.py
+    # ├── connectors      --- only involves the api call to the specific exchange  (depth/orderbook/trades)
+    # │   ├── binance.py      ---
     # │   ├── coindcx.py
-    # │   ├── csx.py
+    # │   ├── csx.py            --- https://api-trading.coinswitch.co/#depth
     # │   └── kucoin.py
     # ├── database
     # │   ├── db.py
@@ -37,3 +37,6 @@ if __name__ == '__main__':
     # │   ├── metrics.py
     # │   ├── config_loader.py
     # │   └── helper.py
+
+
+
