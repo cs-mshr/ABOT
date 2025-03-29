@@ -7,6 +7,13 @@ class Binance:
         self.api_key = api_key
         self.api_secret = api_secret
 
+    def get_order_book(self, symbol: str):
+        """
+        Fetch the order book for a given symbol.
+        """
+        # Placeholder for actual implementation
+        return f"Order book for {symbol}"
+
     def get_market_data(self, symbol: str):
         """
         Fetch market data for a given symbol.
