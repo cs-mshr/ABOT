@@ -1,70 +1,79 @@
-# binance_spot.py
 import requests
-from typing import Optional, Dict, List
+from typing import List, Tuple, Optional
 
 
 class BinanceOrderBook:
-    """Binance Spot Order Book with enhanced visualization"""
+    """Binance Spot Order Book with top 5 bids/asks storage"""
 
-    def __init__(self, base_url: str = "https://api.binance.com/api/v3"):
-        self.base_url = base_url
-        self.request_count = 0
+    def __init__(self, symbol: str = "BTCUSDT"):
+        """
+        Initialize order book with top 5 bids and asks
+        Args:
+            symbol: Trading pair (e.g., 'BTCUSDT')
+        """
+        self.base_url = "https://api.binance.com/api/v3"
+        self.symbol = symbol
+        self.top_bids: List[Tuple[float, float]] = []
+        self.top_asks: List[Tuple[float, float]] = []
+        self.timestamp: Optional[int] = None
+        self._fetch_order_book()
 
-    def fetch_order_book(self, symbol: str, limit: int = 10) -> Optional[Dict]:
-        """Retrieves full order book with price aggregation"""
-        valid_limits = [5, 10, 20, 50, 100, 500, 1000]
-        limit = limit if limit in valid_limits else 10
-
+    def _fetch_order_book(self) -> None:
+        """Fetch and store top 5 bids and asks"""
         try:
             response = requests.get(
                 f"{self.base_url}/depth",
-                params={'symbol': symbol, 'limit': limit}
+                params={'symbol': self.symbol, 'limit': 5},  # Get exactly 5 levels
+                timeout=5
             )
             response.raise_for_status()
-            self.request_count += 1
-            return response.json()
+            data = response.json()
+
+            # Store top 5 bids (sorted highest to lowest)
+            self.top_bids = sorted(
+                [(float(p), float(q)) for p, q in data['bids']],
+                key=lambda x: -x[0]  # Sort by price descending
+            )[:5]
+
+            # Store top 5 asks (sorted lowest to highest)
+            self.top_asks = sorted(
+                [(float(p), float(q)) for p, q in data['asks']],
+                key=lambda x: x[0]  # Sort by price ascending
+            )[:5]
+
+            self.timestamp = data['lastUpdateId']
+
         except Exception as e:
             print(f"Error fetching order book: {e}")
-            return None
 
-    def visualize_book(self, symbol: str, depth: int = 5, show_qty: bool = True):
-        """Displays ASCII order book visualization"""
-        book = self.fetch_order_book(symbol, depth * 2)  # Get extra levels for better visualization
-        if not book:
-            return
+    def refresh(self) -> None:
+        """Refresh the order book data"""
+        self._fetch_order_book()
 
-        bids = sorted([[float(p), float(q)] for p, q in book['bids']], reverse=True)
-        asks = sorted([[float(p), float(q)] for p, q in book['asks']])
+    @property
+    def best_bid(self) -> Optional[Tuple[float, float]]:
+        """Get single best bid (price, quantity)"""
+        return self.top_bids[0] if self.top_bids else None
 
-        print(f"\n🔍 Order Book: {symbol} (Top {depth} levels)")
-        print("-" * 50)
-        print(f"{'BIDS (Buyers)':<25} | {'ASKS (Sellers)':>25}")
-        print("-" * 50)
+    @property
+    def best_ask(self) -> Optional[Tuple[float, float]]:
+        """Get single best ask (price, quantity)"""
+        return self.top_asks[0] if self.top_asks else None
 
-        for i in range(depth):
-            bid_line = f"{bids[i][0]:<12.8f}"
-            ask_line = f"{asks[i][0]:>12.8f}"
+    @property
+    def all_bids(self) -> List[Tuple[float, float]]:
+        """Get all 5 bids (price, quantity)"""
+        return self.top_bids
 
-            if show_qty:
-                bid_line += f" × {bids[i][1]:<8.4f}"
-                ask_line = f"{asks[i][1]:>8.4f} × " + ask_line
+    @property
+    def all_asks(self) -> List[Tuple[float, float]]:
+        """Get all 5 asks (price, quantity)"""
+        return self.top_asks
 
-            print(f"{bid_line:<25} | {ask_line:>25}")
+    @property
+    def spread(self) -> Optional[float]:
+        """Calculate spread between best bid and ask"""
+        if self.top_bids and self.top_asks:
+            return self.top_asks[0][0] - self.top_bids[0][0]
+        return None
 
-    def get_best_orders(self, symbol: str) -> Optional[Dict]:
-        """Returns best bid/ask with liquidity info"""
-        book = self.fetch_order_book(symbol, 5)
-        if not book:
-            return None
-
-        best_bid = [float(book['bids'][0][0]), float(book['bids'][0][1])]
-        best_ask = [float(book['asks'][0][0]), float(book['asks'][0][1])]
-
-        return {
-            'symbol': symbol,
-            'best_bid': best_bid,
-            'best_ask': best_ask,
-            'spread': best_ask[0] - best_bid[0],
-            'spread_pct': (best_ask[0] - best_bid[0]) / best_bid[0] * 100,
-            'mid_price': (best_bid[0] + best_ask[0]) / 2
-        }
