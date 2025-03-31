@@ -1,0 +1,8 @@
+
+   venv/
+   .venv/
+   Tony/
+   __pycache__/
+   *.pyc
+   *.pyo
+   *.pyd 
