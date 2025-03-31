@@ -1,2 +1,5 @@
 venv
 connectors/.env
+.idea
+__pycache__/
+inspectionProfiles
