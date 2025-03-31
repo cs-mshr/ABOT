@@ -76,4 +76,3 @@ class BinanceOrderBook:
         if self.top_bids and self.top_asks:
             return self.top_asks[0][0] - self.top_bids[0][0]
         return None
-
