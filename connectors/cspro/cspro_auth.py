@@ -1,10 +1,9 @@
 import os
 from cryptography.hazmat.primitives.asymmetric import ed25519
 import urllib
-from urllib.parse import urlparse, urlencode
+from urllib.parse import urlparse
 from urllib.parse import urlencode, urlparse
 from typing import Dict, Any
-from dotenv import load_dotenv
 import time
 import json
 
