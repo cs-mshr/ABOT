@@ -32,7 +32,7 @@ def gen_sign(secret_key, method, url, body={}):
 
 
 class CSProAuth:
-    def _init_(self):
+    def __init__(self):
         self.api_key = os.getenv("CSX_API_KEY")
         self.secret_key = os.getenv("CSX_SECRET_KEY")
 

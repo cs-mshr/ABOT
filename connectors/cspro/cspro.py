@@ -2,20 +2,24 @@ from urllib.parse import urlencode, urlparse
 from dotenv import load_dotenv
 import requests
 from connectors.cspro.cspro_auth import CSProAuth
+from models.cspro_response import CSProOrderBookResponse
+from utils import logger
 
 load_dotenv()
 
-class CSPro:
-    def _init_(self):
+_logger = logger.get_logger(__name__)
+
+class CSProExchange:
+    def __init__(self):
         self.auth = CSProAuth()
         self.base_url = 'https://coinswitch.co'
 
-    def get_exchange_data(self, _symbol):
+    def get_order_book(self, symbol: str):
         method = 'GET'
-        _exchange = "coinswitchx"
+        exchange = "coinswitchx"
         params = {
-            'exchange': _exchange,
-            'symbol': _symbol
+            'exchange': exchange,
+            'symbol': symbol
         }
         endpoint = '/trade/api/v2/depth'
 
@@ -33,4 +37,6 @@ class CSPro:
         }
 
         response = requests.request("GET",full_url, headers=headers, json=payload)
-        return response
+        if response.status_code != 200:
+            raise Exception(f"Error fetching order book: {response.status_code} - {response.text}")
+        return CSProOrderBookResponse(**response.json().get('data', {}))
