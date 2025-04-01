@@ -46,13 +46,7 @@ class Kucoin:
             raise Exception(f"Error fetching order book: {response.status_code} - {response.text}")
         return KucoinOrderBookResponse(**response.json().get('data', {}))
 
-
-
-
-
-
-
-
-
-
-#  Spot & Margin REST API: Base URL: https://api.kucoin.com
+if __name__ == '__main__':
+    interactor = Kucoin()
+    order_book = interactor.get_order_book(_symbol="BTC-USDT")
+    print(order_book)
