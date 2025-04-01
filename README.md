@@ -1,4 +1,4 @@
-```markdown
+
 # Python and Poetry Installation Guide
 
 This guide explains how to install Python and Poetry on macOS.
@@ -12,7 +12,7 @@ This guide explains how to install Python and Poetry on macOS.
 
 ### Option 1: Using Homebrew
 ```bash
-brew install python
+  brew install python
 ```
 
 ### Option 2: Download from Python.org
@@ -22,32 +22,37 @@ Visit [https://www.python.org/downloads/](https://www.python.org/downloads/) and
 
 ### Option 1: Using the Official Installer
 ```bash
-curl -sSL https://install.python-poetry.org | python3 -
+  curl -sSL https://install.python-poetry.org | python3 -
 ```
 
 ### Option 2: Using Homebrew
 ```bash
-brew install poetry
+  brew install poetry
 ```
 
 ## Step 3: Verify the Installations
 
 ### Check Python Version
 ```bash
-python3 --version
+  python3 --version
 ```
 
 ### Check Poetry Version
 ```bash
-poetry --version
+  poetry --version
 ```
 
-## Step 4: Initialize a New Python Project with Poetry
-
-Navigate to your project directory and run:
+## Step 4: Install all the dependencies
 ```bash
-poetry init
+  poetry install
 ```
+
+
+To add any new depencency or python package, use:
+```bash
+  poetry add <package_name>   # e.g. poetry add requests
+```
+
 
 This will guide you in creating a basic configuration file (`pyproject.toml`) for managing your dependencies.
 
