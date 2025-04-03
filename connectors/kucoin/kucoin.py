@@ -1,5 +1,7 @@
 
 import os
+
+import aiohttp
 from dotenv import load_dotenv
 import urllib
 from urllib.parse import urlencode, urlparse
@@ -16,7 +18,7 @@ class Kucoin:
         self.auth = KucoinAuth()
         self.base_url = "https://api.kucoin.com"
 
-    def get_order_book(self, _symbol):
+    async def get_order_book(self, _symbol):
         '''
         level2_20 -> gives 20 data
         leve2 -> gives complete data
@@ -41,10 +43,12 @@ class Kucoin:
             'KC-API-KEY-VERSION' : os.getenv('KC_API_KEY_VERSION'),
         }
 
-        response = requests.request(method, full_url, headers=headers)
-        if response.status_code != 200:
-            raise Exception(f"Error fetching order book: {response.status_code} - {response.text}")
-        return KucoinOrderBookResponse(**response.json().get('data', {}))
+        async with aiohttp.ClientSession() as session:
+            async with session.get(full_url, headers=headers) as response:
+                if response.status != 200:
+                    raise Exception(f"Error fetching order book: {response.status} - {response.text}")
+                data = await response.json()
+                return KucoinOrderBookResponse(**data.get('data', {}))
 
 
 
