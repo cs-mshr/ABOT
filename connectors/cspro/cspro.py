@@ -1,4 +1,6 @@
 from urllib.parse import urlencode, urlparse
+
+import aiohttp
 from dotenv import load_dotenv
 import requests
 from connectors.cspro.cspro_auth import CSProAuth
@@ -14,7 +16,7 @@ class CSProExchange:
         self.auth = CSProAuth()
         self.base_url = 'https://coinswitch.co'
 
-    def get_order_book(self, symbol: str):
+    async def get_order_book(self, symbol: str):
         method = 'GET'
         exchange = "coinswitchx"
         params = {
@@ -35,8 +37,12 @@ class CSProExchange:
             'X-AUTH-APIKEY': auth_data["CSX-ACCESS-KEY"],
             'X-AUTH-EPOCH': auth_data["CSX-EPOCH-TIME"],
         }
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.get(full_url, headers=headers, json=payload) as response:
+                if response.status != 200:
+                    raise Exception(f"Error fetching order book: {response.status} - {response.text}")
+                data = await response.json()
+                return CSProOrderBookResponse(**data.get('data', {}))
 
-        response = requests.request("GET",full_url, headers=headers, json=payload)
-        if response.status_code != 200:
-            raise Exception(f"Error fetching order book: {response.status_code} - {response.text}")
-        return CSProOrderBookResponse(**response.json().get('data', {}))
+
