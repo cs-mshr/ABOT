@@ -1,30 +1,18 @@
-# class CoinDCX:
-#     """
-#     CoinDCX connector for cryptocurrency trading.
-#     """
-#
-#     def __init__(self, api_key: str, api_secret: str):
-#         self.api_key = api_key
-#         self.api_secret = api_secret
-#
-#     def get_balance(self):
-#         # Implementation to get balance from CoinDCX
-#         pass
-#
-#     def place_order(self, symbol: str, side: str, quantity: float, price: float):
-#         # Implementation to place an order on CoinDCX
-#         pass
-#
-#     def cancel_order(self, order_id: str):
-#         # Implementation to cancel an order on CoinDCX
-#         pass
+import aiohttp
+from pydantic import BaseModel
+from models.coindcx_response import CoindcxOrderBookResponse
 
-import requests # Install requests module first.
 
-url = "https://public.coindcx.com/market_data/orderbook?pair=B-BTC_USDT" # Replace 'SNTBTC' with the desired market pair.
+class CoinDCXExchange:
+    def __init__(self):
+        self.base_url = 'https://public.coindcx.com'
 
-response = requests.get(url)
-data = response.json()
-print(data)
+    async def get_order_book(self, symbol: str) -> CoindcxOrderBookResponse:
+        pair = f"B-{symbol.upper()}"
+        url = f"{self.base_url}/market_data/orderbook?pair={pair}"
 
-# https://api.coindcx.com
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                response.raise_for_status()
+                data = await response.json()
+                return CoindcxOrderBookResponse(**data)
