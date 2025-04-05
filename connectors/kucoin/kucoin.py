@@ -50,13 +50,3 @@ class Kucoin:
                 data = await response.json()
                 return KucoinOrderBookResponse(**data.get('data', {}))
 
-
-
-
-
-
-
-
-
-
-#  Spot & Margin REST API: Base URL: https://api.kucoin.com
