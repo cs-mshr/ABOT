@@ -1,5 +1,7 @@
 import asyncio
 import json
+from decimal import Decimal
+
 from pydantic import ValidationError
 
 from connectors.cspro.cspro import CSProExchange
@@ -15,7 +17,7 @@ class OrderBookFetcher:
             "kucoin": self.kucoin
         }
         self.indian_exchanges = ["coinswitch"] # Add other exchanges which dont support coin/usdt pair
-        self.usdt_inr = 89.5 # took constant value for now , change this for proper conversion;
+        self.usdt_inr = Decimal(89.5) # took constant value for now , change this for proper conversion;
 
     def format_symbol(self, exchange, symbol):
         base, quote = symbol.split("-")
@@ -39,10 +41,10 @@ class OrderBookFetcher:
         formatted_symbol = self.format_symbol(exchange, symbol)
         final_orderbook = await exchange_instance.get_order_book(formatted_symbol)
 
-        top_bid_price = float(final_orderbook.bids[0][0])
-        top_ask_price = float(final_orderbook.asks[0][0])
-        top_bid_quantity = float(final_orderbook.bids[0][1])
-        top_ask_quantity = float(final_orderbook.asks[0][1])
+        top_ask_price = Decimal(final_orderbook.asks[0][0])
+        top_bid_price = Decimal(final_orderbook.bids[0][0])
+        top_bid_quantity = Decimal(final_orderbook.bids[0][1])
+        top_ask_quantity = Decimal(final_orderbook.asks[0][1])
 
         if exchange not in self.indian_exchanges:
             top_bid_price *= self.usdt_inr
